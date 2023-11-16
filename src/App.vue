@@ -1,8 +1,13 @@
 <script>
+import Questions from "@/components/Questions.vue";
+import Result from "@/components/Result.vue";
+
 export default {
   name: 'App',
   data() {
     return {
+      questionsAnswered: 0,
+      totalCorrect: 0,
       questions: [
         {
           q: 'What is 2 + 2?',
@@ -79,34 +84,44 @@ export default {
         }
       ]
     }
+  },
+  components:{
+    Questions,
+    Result
+  },
+  methods: {
+    questionAnswered(is_correct) {
+      if (is_correct) {
+        this.totalCorrect++;
+      }
+
+      this.questionsAnswered++;
+    },
+    reset() {
+       this.questionsAnswered = 0;
+       this.totalCorrect = 0;
+    }
   }
 }
 </script>
 
 <template>
   <div class="ctr">
-    <div class="questions-ctr">
-      <div class="progress">
-        <div class="bar"></div>
-        <div class="status">1 out of 3 questions answered</div>
-      </div>
-      <div class="single-question">
-        <div class="question">Sample Question 1</div>
-        <div class="answers">
-          <div class="answer">Sample Answer 1</div>
-          <div class="answer">Sample Answer 2</div>
-          <div class="answer">Sample Answer 3</div>
-          <div class="answer">Sample Answer 4</div>
-        </div>
-      </div>
-    </div>
-    <div class="result">
-      <div class="title">You got sample result 1!</div>
-      <div class="desc">
-        Enter a short description here about the result.
-      </div>
-    </div>
-    <button type="button" class="reset-btn">Reset</button>
+    <transition name="fade" mode="out-in">
+      <questions
+        v-if="questionsAnswered < questions.length"
+        :questions         = "questions"
+        :questionsAnswered = "questionsAnswered"
+        @question-answered = "questionAnswered"
+      />
+      <result
+        v-else
+        :results = "results"
+        :totalCorrect = "totalCorrect"
+      />
+    </transition>
+
+    <button type="button" class="reset-btn" @click.prevent="reset" v-if="this.questionsAnswered === questions.length">Reset</button>
   </div>
 </template>
 
